@@ -21,7 +21,7 @@
 
 
 from pid import PIDAgent
-from keyframes import hello
+from keyframes import hello, leftBackToStand, leftBellyToStand, rightBackToStand, rightBellyToStand, wipe_forehead
 
 
 class AngleInterpolationAgent(PIDAgent):
@@ -35,17 +35,52 @@ class AngleInterpolationAgent(PIDAgent):
 
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes, perception)
-        target_joints['RHipYawPitch'] = target_joints['LHipYawPitch'] # copy missing joint in keyframes
+        target_joints['RHipYawPitch'] = target_joints.get('LHipYawPitch', 0.0)
         self.target_joints.update(target_joints)
         return super(AngleInterpolationAgent, self).think(perception)
 
     def angle_interpolation(self, keyframes, perception):
         target_joints = {}
         # YOUR CODE HERE
+        names, times, keys = keyframes
+        current_time = perception.time % max(max(times))
+        
+
+        for i in range(len(names)):
+            currName = names[i]
+            currTime = times[i]
+            currKey = keys[i]
+
+            #before
+            if current_time < currTime[0]:
+                target_joints[currName] = currKey[0][0]
+                continue
+            
+            #after
+            if current_time > currTime[-1]:
+                target_joints[currName] = currKey[-1][0]
+                continue
+            
+            #during
+            j = 0
+            while j + 1 < len(currTime) and current_time > currTime[j + 1]:
+                j += 1
+
+            # Bézier interpolation between j and j+1
+            t = (current_time - currTime[j]) / (currTime[j + 1] - currTime[j])
+
+            P0 = currKey[j][0]
+            P1 = currKey[j][0] + currKey[j][2][2]
+            P2 = currKey[j + 1][0] + currKey[j + 1][1][2]
+            P3 = currKey[j + 1][0]
+
+            B_t = (1 - t)**3 * P0 + 3*(1 - t)**2*t*P1 + 3*(1 - t)*t**2*P2 + t**3*P3
+
+            target_joints[currName] = B_t
 
         return target_joints
 
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
-    agent.keyframes = hello()  # CHANGE DIFFERENT KEYFRAMES
+    agent.keyframes = rightBackToStand()  # CHANGE DIFFERENT KEYFRAMES
     agent.run()
