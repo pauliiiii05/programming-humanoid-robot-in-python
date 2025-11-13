@@ -32,6 +32,7 @@ class AngleInterpolationAgent(PIDAgent):
                  sync_mode=True):
         super(AngleInterpolationAgent, self).__init__(simspark_ip, simspark_port, teamname, player_id, sync_mode)
         self.keyframes = ([], [], [])
+        self.startTime = None
 
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes, perception)
@@ -45,19 +46,24 @@ class AngleInterpolationAgent(PIDAgent):
         names, times, keys = keyframes
         if len(times) == 0:
             return target_joints
+        if self.startTime is None:
+            self.startTime = perception.time
         current_time = perception.time % max(max(times))
-        
+        motionTime = perception.time - self.startTime
 
         for i in range(len(names)):
             currName = names[i]
             currTime = times[i]
             currKey = keys[i]
 
+            if currName not in perception.joint:
+                continue
+
 
             #before
-            if current_time < currTime[0]:
+            '''if current_time < currTime[0]:
                 target_joints[currName] = currKey[0][0]
-                break
+                break'''
             
             #after
             if current_time > currTime[-1]:
@@ -72,10 +78,16 @@ class AngleInterpolationAgent(PIDAgent):
             # Bézier interpolation between j and j+1
             t = (current_time - currTime[j]) / (currTime[j + 1] - currTime[j])
 
-            P0 = currKey[j][0]
-            P1 = currKey[j][0] + currKey[j][2][2]
-            P2 = currKey[j + 1][0] + currKey[j + 1][1][2]
-            P3 = currKey[j + 1][0]
+            if(current_time < currTime[0]):
+                P0 = perception.joint[currName]
+                P1 = P0
+                P2 = currKey[0][0] + (currKey[0])[1][2]
+                P3 = currKey[0][0]
+            else:
+                P0 = currKey[j][0]
+                P1 = currKey[j][0] + currKey[j][2][2]
+                P2 = currKey[j + 1][0] + currKey[j + 1][1][2]
+                P3 = currKey[j + 1][0]
 
             B_t = (1 - t)**3 * P0 + 3*(1 - t)**2*t*P1 + 3*(1 - t)*t**2*P2 + t**3*P3
 
