@@ -48,8 +48,8 @@ class AngleInterpolationAgent(PIDAgent):
             return target_joints
         if self.startTime is None:
             self.startTime = perception.time
-        current_time = perception.time % max(max(times))
-        motionTime = perception.time - self.startTime
+        maxTime = max(max(times))
+        current_time = perception.time - self.startTime
 
         for i in range(len(names)):
             currName = names[i]
@@ -68,7 +68,7 @@ class AngleInterpolationAgent(PIDAgent):
             #after
             if current_time > currTime[-1]:
                 target_joints[currName] = currKey[-1][0]
-                break
+                continue
 
             #during
             j = 0
@@ -92,6 +92,13 @@ class AngleInterpolationAgent(PIDAgent):
             B_t = (1 - t)**3 * P0 + 3*(1 - t)**2*t*P1 + 3*(1 - t)*t**2*P2 + t**3*P3
 
             target_joints[currName] = B_t
+            # print(self.startTime)
+          
+        # print(target_joints)
+        # print(target_joints)
+        if current_time > maxTime:
+            self.keyframes = ([],[],[])
+            self.startTime = None
 
         return target_joints
 
