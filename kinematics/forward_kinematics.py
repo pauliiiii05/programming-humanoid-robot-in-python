@@ -50,10 +50,9 @@ class ForwardKinematicsAgent(PostureRecognitionAgent):
             'HeadPitch': (0,0,0,'y'),
             # LArm
             'LShoulderPitch': (0,0.098,0.1,'y'), 
-            'LShoulderRoll': (0,0,0,'x'), 
-            'LElbowYaw': (0.105,0.015,0,'z'), 
-            'LElbowRoll': (0,0,0,'x'), 
-            'LWristYaw': (0.05595,0,0,'z'),
+            'LShoulderRoll': (0,0,0,'z'), 
+            'LElbowYaw': (0.105,0.015,0,'x'), 
+            'LElbowRoll': (0,0,0,'z'), 
             # LLeg
             'LHipYawPitch': (0,0.05,-0.085,'z'), 
             'LHipRoll': (0,0,0,'x'), 
@@ -70,10 +69,9 @@ class ForwardKinematicsAgent(PostureRecognitionAgent):
             'RAnkleRoll': (0,0,0,'x'),
             # RArm
             'RShoulderPitch': (0,-0.098,0.1,'y'), 
-            'RShoulderRoll': (0,0,0,'x'), 
-            'RElbowYaw': (0.105,-0.015,0,'z'), 
-            'RElbowRoll': (0,0,0,'x'), 
-            'RWristYaw': (0.05595,0,0,'z')
+            'RShoulderRoll': (0,0,0,'z'), 
+            'RElbowYaw': (0.105,-0.015,0,'x'), 
+            'RElbowRoll': (0,0,0,'z'), 
         }
 
     def think(self, perception):
