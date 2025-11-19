@@ -42,7 +42,7 @@ class ServerAgent(InverseKinematicsAgent):
     def get_posture(self):
         '''return current posture of robot'''
         # YOUR CODE HERE
-        return self.get_posture()
+        return self.recognize_posture(self.perception)
 
     def execute_keyframes(self, keyframes):
         '''excute keyframes, note this function is blocking call,

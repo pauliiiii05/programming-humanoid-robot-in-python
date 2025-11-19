@@ -76,12 +76,12 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
 
         names = []
         times = []
-        keys = [] 
+        keys = []
 
         for jname, ang in zip(joints, angles):
             names.append(jname)
-            times.append([5.0, 7.0])
-            keys.append([float(ang)])
+            times.append([1.0, 1.1])
+            keys.append([[float(ang), [0, 0.0, 0.0], [0, 0.0, 0.0]], [float(ang), [0, 0.0, 0.0], [0, 0.0, 0.0]]])
 
         self.keyframes = (names, times, keys)
 

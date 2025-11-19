@@ -87,7 +87,7 @@ if __name__ == '__main__':
     print(agent.get_angle("LKneePitch"))
     agent.set_angle("LKneePitch", 2.0)
     print(agent.get_angle("LKneePitch"))
-    print(agent.get_posture)
+    print(agent.get_posture())
     agent.execute_keyframes(hello())
     print(agent.get_transform("LAnklePitch"))
     T = identity(4)
@@ -96,3 +96,4 @@ if __name__ == '__main__':
     T[2,-1] = -0.38
     print("T = ", T)
     agent.set_transform("LLeg", T)
+    print("it worked: ", agent.get_transform("LAnklePitch"))
