@@ -12,6 +12,7 @@
 
 from forward_kinematics import ForwardKinematicsAgent
 from numpy.matlib import identity
+import numpy as np
 
 
 class InverseKinematicsAgent(ForwardKinematicsAgent):
@@ -24,13 +25,65 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         '''
         joint_angles = []
         # YOUR CODE HERE
+        Px = float(transform[0,3])
+        Py = float(transform[1,3])
+        Pz = float(transform[2,3])
+
+        if (effector_name == "LLeg"):
+            Py -= 0.05
+        else:
+            Py -= -0.05
+        
+        Pz += 0.085 + 0.04519
+
+        distance = (Px**2 + Py**2 + Pz**2 - 0.1**2 - 0.1029**2) / (2 * 0.1 * 0.1029)
+        distance = np.clip(distance, -1, 1)
+        knee = np.arccos(-distance)
+
+        length = 0.1 + 0.1029 * np.cos(knee)
+        height = 0.1029 * np.sin(knee)
+        hipPitch = np.arctan2(Pz, Px) - np.arctan2(height, length)
+
+        anklePitch = -(hipPitch + knee)
+
+        hipRoll = np.arctan2(Py, abs(Pz))
+        ankleRoll = -hipRoll
+
+        hipYawPitch = 0.0
+
+        joint_angles = [
+            hipYawPitch,
+            hipRoll,
+            hipPitch,
+            knee,
+            anklePitch,
+            ankleRoll
+        ]
         return joint_angles
 
     def set_transforms(self, effector_name, transform):
         '''solve the inverse kinematics and control joints use the results
         '''
         # YOUR CODE HERE
-        self.keyframes = ([], [], [])  # the result joint angles have to fill in
+        angles = self.inverse_kinematics(effector_name, transform)
+
+        if effector_name == "LLeg":
+            joints = ['LHipYawPitch', 'LHipRoll', 'LHipPitch',
+                    'LKneePitch', 'LAnklePitch', 'LAnkleRoll']
+        else:
+            joints = ['RHipYawPitch', 'RHipRoll', 'RHipPitch',
+                    'RKneePitch', 'RAnklePitch', 'RAnkleRoll']
+
+        names = []
+        times = []
+        keys = [] 
+
+        for jname, ang in zip(joints, angles):
+            names.append(jname)
+            times.append([5.0, 7.0])
+            keys.append([float(ang)])
+
+        self.keyframes = (names, times, keys)
 
 if __name__ == '__main__':
     agent = InverseKinematicsAgent()
